@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.MarkMapper">
+	<resultMap id="BaseResultMap" type="com.myplay.model.Mark">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="uid" jdbcType="INTEGER" property="uid" />
+		<result column="vid" jdbcType="INTEGER" property="vid" />
+		<result column="vcode" jdbcType="REAL" property="vcode" />
+	</resultMap>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from mark
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.myplay.model.Mark">
+		insert into mark (id, uid, vid,
+		vcode)
+		values (#{id,jdbcType=INTEGER}, #{uid,jdbcType=INTEGER},
+		#{vid,jdbcType=INTEGER},
+		#{vcode,jdbcType=REAL})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.myplay.model.Mark">
+		update mark
+		set uid = #{uid,jdbcType=INTEGER},
+		vid = #{vid,jdbcType=INTEGER},
+		vcode = #{vcode,jdbcType=REAL}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select id, uid, vid, vcode
+		from mark
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select id, uid, vid, vcode
+		from mark
+	</select>
+	<!-- 查询平均分 -->
+	<select id="loadRate" resultType="float">
+		select AVG(vcode) from mark where vid=#{vid}
+	</select>
+	<!-- 查询用户的打分 -->
+	<select id="loadMark" resultType="float">
+		select vcode from mark where uid=#{id} and vid=#{vid}
+	</select>
+	<select id="outPutfile" resultMap="BaseResultMap">
+		select uid,vid,vcode from mark
+		into outfile 'D:\\upload\\a.csv' fields terminated by ',' lines terminated by
+		'\r\n';
+	</select>
+</mapper>

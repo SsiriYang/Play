@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet"
+	href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<script type="text/javascript"
+	src="../resource/bootstrap/js/jquery-2.1.1.js"></script>
+<script
+	src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="resource/layui/css/layui.css">
+<title>影视管理</title>
+<style type="text/css">
+td{
+    font-size: 15px;
+    overflow: hidden;
+}
+.img{
+	width: 100px;
+	height: 52px;
+}
+.icon{
+	font-size: 30px;
+}
+.smeil{
+	color: #1e9fff;
+}
+.cry{
+	color: #ff5722;
+}
+</style>
+</head>
+
+<body style="overflow: auto;">
+	<fieldset style="width: 100%">
+		<legend>影视管理</legend>
+	</fieldset>	
+		<!-- <div class="layui-field-box" style="padding: 0 10px;height: 500px;"> -->
+			<!-- 内容区域 -->
+	<div style="margin-bottom: 10px; height: 30px;">
+		<div class="col-lg-6" style="width: 200px;">
+			<div class="input-group" style="float: left;">
+				<input type="text" class="form-control" value="" id="searchinput" placeholder="Search for..."> 
+				<span class="input-group-btn">
+					<button class="btn btn-default" id="searchbtn" type="button" onclick="getvalue()">Go!</button>
+				</span>
+			</div>
+		</div>
+		<div style="float: left; width: 150px;overflow: auto;">
+			<select class="form-control" style="height: 34px;" id="categorylist"></select>
+		</div>
+	</div>
+	<div>
+		<table class="table table-bordered" id="product_table">
+			<thead style="background-color: #e2e2e2">
+				<th style="width: 60px;">编号</th>
+				<th style="width: 180px;">视频标题</th>
+				<th style="width: 120px;">视频封面</th>
+				<th style="width: 80px">视频内容</th>
+				<th style="width: 80px;">收藏量</th>
+				<!-- <th style="width: 80px;">上传者</th> -->
+				<!-- <th style="width: 80px;">视频类型</th> -->
+				<th style="width: 100px;">上传时间</th>
+				<th style="width: 80px;">播放量</th>
+				<th >视频详情</th>
+				<th style="width: 50px;">评分</th>
+				<th style="width: 80px;">审核状态</th>
+				<th style="width: 120px;">操作</th>
+			</thead>
+			<tbody align="left">
+
+			</tbody>
+
+		</table>
+	</div>
+
+	<span id="pageinformation"></span>
+	<!-- 分页 -->
+	<div>
+		<nav aria-label="Page navigation" id="pages" style="float: right;"></nav>
+	</div>
+		<!-- </div> -->
+	
+
+
+</body>
+<script src="resource/layui/layui.js"></script>
+<script>
+	//JavaScript代码区域
+	layui.use([ 'element', 'table', 'form', 'jquery', 'layer' ],
+	function() {
+		var element = layui.element, table = layui.table, form = layui.form, $ = layui.$, layer = layui.layer;
+/* 		$('#addshop').click(function() {
+			layer.open({
+						type : 2,
+						title : '视频预览',
+						area : [ '630px',
+								'360px' ],
+						shade : 0.8,
+						closeBtn : 0,
+						shadeClose : true,
+						content : '//player.youku.com/embed/XMjY3MzgzODg0'
+
+					});
+		}); */
+		$('#submit').click(function() {
+			console.log("nihao")
+		});
+		/* 审核成功 */
+		$(".passbtn").click(function(){
+			var videoid = $(this).attr("name");
+			$.ajax({
+				url : "http://127.0.0.1/admin/pass.action",
+				data : "videoid=" + videoid,
+				type : "get",
+				success : function(result) {
+					if(result=1){
+						var iconid = "icon"+ videoid;
+						$("#"+iconid).removeClass("layui-icon-face-smile layui-icon-face-cry smeil cry")
+						.addClass("layui-icon-face-smile smeil");
+						//$(this).parent().prev().children().removeClass("layui-icon-face-smile layui-icon-face-cry")
+						//.addClass("layui-icon-face-smile");
+						layer.msg('通过成功！', {icon: 1});
+					}else{
+						layer.msg('操作失败！', {icon: 2});
+					}
+				}
+			});
+			
+		});
+		/* 退回成功 */
+		$(".notpassbtn").click(function(){
+			var videoid = $(this).attr("name");
+			$.ajax({
+				url : "http://127.0.0.1/admin/notpass.action",
+				data : "videoid=" + videoid,
+				type : "get",
+				success : function(result) {
+					if(result=1){
+						var iconid = "icon"+ videoid;
+						$("#"+iconid).removeClass("layui-icon-face-smile layui-icon-face-cry smeil cry")
+						.addClass("layui-icon-face-cry cry");
+						
+						layer.msg('退回成功！', {icon: 1});
+					}else{
+						layer.msg('操作失败！', {icon: 2});
+					}
+				}
+			});
+			
+		});
+
+		
+		$(document).on("click",".view",function(){
+			var src = $(this).prop("name")
+			layer.open({
+			  title: "视频预览",
+			  type: 1,
+			  skin: 'layui-layer-rim', //加上边框
+			  area: ['500px', '380px'], //宽高
+			  content: 
+				  `
+				  <div><video style="height: 310px;width: 480px" controls="controls" src="${$(this).prop("name")}"></video></div>
+                  `
+			});
+		});
+		
+		
+	});
+	
+	
+	/* 数据交互 */
+	$(function() {
+		topage(1);
+		getcategory();
+	});
+	function topage(currentpage) {
+		$.ajax({
+			url : "http://127.0.0.1/admin/getvideolist.action",
+			data : "currentpage=" + currentpage,
+			type : "get",
+			success : function(result) {
+				//填充表格数据
+				maketbody(result);
+				//分页信息
+				pageinformation(result);
+				//分页按钮
+				pagebutton(result);
+			}
+
+		});
+	}
+	
+	function maketbody(result) {
+		$("#product_table tbody").empty();
+		var productlist = result.data.pageinfo.list;
+		$.each(productlist, function(index, video) {
+			var id = $("<td></td>").append(index+(result.data.pageinfo.pageNum-1)*result.data.pageinfo.pageSize+1).addClass("td");
+			var title = $("<td></td>").append(video.title);
+			var photourl = $("<td></td>").css("padding","0").css("height","79px").append($("<img />").attr("src",video.photourl).css("height","100%").css("width","100%"));
+			var videourl = $("<td></td>").append($("<a></a>").attr("href","javascript:;").append("点击预览").addClass("view").attr("name",video.videourl));
+			var collectioncount = $("<td></td>").append(
+					video.collectioncount);
+			/* var userid = $("<td></td>")
+					.append(video.userid).addClass("usertr").add("id","usertrid"+video.id); */
+			/* var categoryid = $("<td></td>").append(
+					video.categoryid); */
+			var createtime = $("<td></td>").append(
+					video.createtime);
+			var showcount = $("<td></td>").append(
+					video.showcount);
+			var vediodetail = $("<td></td>").append(
+					video.vediodetail);
+			var average = $("<td></td>").append(
+					video.average);
+			/* <i class="layui-icon layui-icon-face-smile" style="font-size: 30px; color: #1E9FFF;"></i> */ 
+			var status_icon = $("<i></i>").addClass("layui-icon icon").attr("id","icon"+video.id);
+			var status = $("<td></td>").append(status_icon).css("padding","5px 12px");
+			if(video.status==1){
+				status_icon.addClass("layui-icon-face-smile smeil");
+			}else{
+				status_icon.addClass("layui-icon-face-cry cry");
+			}
+			var operation = $("<td></td>").append(
+						$("<button></button>").append("通过").addClass("layui-btn layui-btn-sm passbtn")
+											 .attr("name",video.id))
+					.append(
+						$("<button></button>").append("退回").addClass("layui-btn layui-btn-sm layui-btn-danger notpassbtn")
+											  .attr("name",video.id));
+			$("<tr></tr>").append(id).append(title).append(
+					photourl).append(videourl).append(
+					collectioncount).append(createtime).append(
+					showcount).append(vediodetail).append(
+					average).append(status).append(operation)
+					.appendTo("#product_table tbody");
+		})
+		
+	}
+	
+	/* 查询用户添加上传者 */
+/* 	function getuserlist(){
+		$.ajax({
+			url : "http://127.0.0.1/admin/getuserlist.action",
+			type : "get",
+			success : function(result) {
+				var list = [];
+				$.each(result,function(index,i){
+					list.push(i.name);
+				});
+				$.each(list,function(){
+					alert($(this).name)
+				});
+			}
+
+		});
+	} */
+	
+	function pageinformation(result) {
+		$("#pageinformation").empty();
+		$("#pageinformation").append(
+				"当前是第" + result.data.pageinfo.pageNum + "页, 总"
+						+ result.data.pageinfo.pages + "页，总"
+						+ result.data.pageinfo.total + "条");
+	}
+	
+	function pagebutton(result) {
+		$("#pages").empty();
+		var ul = $("<ul></ul>").addClass("pagination");
+		var firstpage_a = $("<a></a>").append("首页").attr("href","#");
+		var firstpage = $("<li></li>").append(firstpage_a)
+				.click(function() {
+					topage(1);
+				});
+		var prepage_a = $("<a></a>").append("上一页").attr("href","#");
+		var prepage = $("<li></li>").append(prepage_a).addClass("li").click(
+				function() {
+					topage(result.data.pageinfo.pageNum - 1);
+				});
+		/* 判断当前是否为第一页 */
+		if (result.data.pageinfo.isFirstPage) {
+			firstpage.addClass("disabled");
+			prepage.addClass("disabled");
+		}
+
+		var nextpage_a = $("<a></a>").append("下一页").attr("href", "#");
+		var nextpage = $("<li></li>").append(nextpage_a).addClass("li").click(
+				function() {
+					topage(result.data.pageinfo.pageNum + 1);
+				});
+		var lastpage_a = $("<a></a>").append("尾页").attr("href", "#");
+		var lastpage = $("<li></li>").append(lastpage_a).addClass("li").click(
+				function() {
+					topage(result.data.pageinfo.pages);
+				});
+		/* 判断当前是是否有后一页 */
+		if (!result.data.pageinfo.hasNextPage) {
+			nextpage.addClass("disabled");
+			lastpage.addClass("disabled");
+		}
+		ul.append(firstpage).append(prepage);
+		$.each(result.data.pageinfo.navigatepageNums,
+				function(index, item) {
+					var page = $("<li></li>").append(
+							$("<a></a>").append(item).attr("href", "#"))
+							.addClass("li");
+					if (result.data.pageinfo.pageNum == item) {
+						page.addClass("active");
+					}
+					/* 绑定跳转页面方法 */
+					page.click(function() {
+						topage(item);
+					});
+					ul.append(page);
+				});
+		ul.append(nextpage).append(lastpage).appendTo("#pages");
+	}
+	/* 模糊查询 */
+	function getvalue(){
+		var currentpage = 1;
+        var searchword = document.getElementById("searchinput").value;
+        topagebysearch(currentpage,searchword);  
+        }
+	function topagebysearch(currentpage,searchword) {
+		$.ajax({
+			url : "http://127.0.0.1/admin/search.action",
+			data : {"searchword":searchword,"currentpage":currentpage},
+			type : "get",
+			success : function(result) {
+				//填充表格数据
+				maketbody(result);
+				//分页信息
+				pageinformation(result);
+				//分页按钮
+				pagebuttonforsearch(result,searchword);
+				document.getElementById("searchinput").value = "";
+				
+			}
+
+		});
+	}
+	/* 查询分页 */
+	function pagebuttonforsearch(result,searchword) {
+		$("#pages").empty();
+		var ul = $("<ul></ul>").addClass("pagination");
+		var firstpage_a = $("<a></a>").append("首页").attr("href","#");
+		var firstpage = $("<li></li>").append(firstpage_a)
+				.click(function() {
+					topagebysearch(1,searchword);
+				});
+		var prepage_a = $("<a></a>").append("上一页").attr("href","#");
+		var prepage = $("<li></li>").append(prepage_a).addClass("li").click(
+				function() {
+					topagebysearch(result.data.pageinfo.pageNum - 1,searchword);
+				});
+		/* 判断当前是否为第一页 */
+		if (result.data.pageinfo.isFirstPage) {
+			firstpage.addClass("disabled");
+			prepage.addClass("disabled");
+		}
+
+		var nextpage_a = $("<a></a>").append("下一页").attr("href", "#");
+		var nextpage = $("<li></li>").append(nextpage_a).addClass("li").click(
+				function() {
+					topagebysearch(result.data.pageinfo.pageNum + 1,searchword);
+				});
+		var lastpage_a = $("<a></a>").append("尾页").attr("href", "#");
+		var lastpage = $("<li></li>").append(lastpage_a).addClass("li").click(
+				function() {
+					topagebysearch(result.data.pageinfo.pages,searchword);
+				});
+		/* 判断当前是是否有后一页 */
+		if (!result.data.pageinfo.hasNextPage) {
+			nextpage.addClass("disabled");
+			lastpage.addClass("disabled");
+		}
+		ul.append(firstpage).append(prepage);
+		$.each(result.data.pageinfo.navigatepageNums,function(index, item) {
+			var page = $("<li></li>").append(
+					$("<a></a>").append(item).attr("href", "#"))
+					.addClass("li");
+			if (result.data.pageinfo.pageNum == item) {
+				page.addClass("active");
+			}
+			/* 绑定跳转页面方法 */
+			page.click(function() {
+				topagebysearch(item,searchword);
+			});
+			ul.append(page);
+		});
+		ul.append(nextpage).append(lastpage).appendTo("#pages");
+	}
+	/* 下拉框部分 */
+	/* 获取全部类型 */
+	function getcategory(){
+		$.ajax({
+			url : "http://127.0.0.1/admin/getcategory.action",
+			type : "get",
+			success : function(result) {
+				if(result!=null){
+					//填充表格数据
+					makecategorylist(result);
+				}else{
+					layer.msg('数据获取异常！', {icon: 3});
+				}
+			}
+		});
+	}
+	/* 添加下拉框数据 */
+	function makecategorylist(result){
+		$("#categorylist").empty();
+		$.each(result,function(index, item) {
+			var op = $("<option></option>").append(item.name).attr("name",item.id).appendTo('#categorylist'); 
+		});
+	}
+	/* 类型选择框选中事件 */
+	$('#categorylist').change(function(){
+		//alert($('#categorylist  option:selected').val()+$('#categorylist  option:selected').attr("name"));
+		topagebycategoryid($('#categorylist  option:selected').attr("name"),1)
+	});
+	/* 类型查询 分页回显*/
+	function topagebycategoryid(categoryid,currentpage) {
+		$.ajax({
+			url : "http://127.0.0.1/admin/searchbycategory.action",
+			data : {"categoryid":categoryid,"currentpage":currentpage},
+			type : "get",
+			success : function(result) {
+				//填充表格数据
+				maketbody(result);
+				//分页信息
+				pageinformation(result);
+				//分页按钮
+				pagebuttonforcategory(result,categoryid);
+			}
+
+		});
+	}
+	function pagebuttonforcategory(result,categoryid) {
+		$("#pages").empty();
+		var ul = $("<ul></ul>").addClass("pagination");
+		var firstpage_a = $("<a></a>").append("首页").attr("href","#");
+		var firstpage = $("<li></li>").append(firstpage_a)
+				.click(function() {
+					topagebycategoryid(1,categoryid);
+				});
+		var prepage_a = $("<a></a>").append("上一页").attr("href","#");
+		var prepage = $("<li></li>").append(prepage_a).addClass("li").click(
+				function() {
+					topagebycategoryid(result.data.pageinfo.pageNum - 1,categoryid);
+				});
+		/* 判断当前是否为第一页 */
+		if (result.data.pageinfo.isFirstPage) {
+			firstpage.addClass("disabled");
+			prepage.addClass("disabled");
+		}
+
+		var nextpage_a = $("<a></a>").append("下一页").attr("href", "#");
+		var nextpage = $("<li></li>").append(nextpage_a).addClass("li").click(
+				function() {
+					topagebycategoryid(result.data.pageinfo.pageNum + 1,categoryid);
+				});
+		var lastpage_a = $("<a></a>").append("尾页").attr("href", "#");
+		var lastpage = $("<li></li>").append(lastpage_a).addClass("li").click(
+				function() {
+					topagebycategoryid(result.data.pageinfo.pages,categoryid);
+				});
+		/* 判断当前是是否有后一页 */
+		if (!result.data.pageinfo.hasNextPage) {
+			nextpage.addClass("disabled");
+			lastpage.addClass("disabled");
+		}
+		ul.append(firstpage).append(prepage);
+		$.each(result.data.pageinfo.navigatepageNums,function(index, item) {
+			var page = $("<li></li>").append(
+					$("<a></a>").append(item).attr("href", "#"))
+					.addClass("li");
+			if (result.data.pageinfo.pageNum == item) {
+				page.addClass("active");
+			}
+			/* 绑定跳转页面方法 */
+			page.click(function() {
+				topagebycategoryid(item,categoryid);
+			});
+			ul.append(page);
+		});
+		ul.append(nextpage).append(lastpage).appendTo("#pages");
+	}
+	
+</script>
+
+</html>

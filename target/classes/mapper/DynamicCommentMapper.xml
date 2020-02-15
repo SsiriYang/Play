@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.DynamicCommentMapper">
+	<resultMap id="BaseResultMap" type="com.myplay.model.DynamicComment">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="content" jdbcType="VARCHAR" property="content" />
+		<result column="to_uid" jdbcType="INTEGER" property="toUid" />
+		<result column="from_uid" jdbcType="INTEGER" property="fromUid" />
+		<result column="did" jdbcType="INTEGER" property="did" />
+	</resultMap>
+	<delete id="deleteDynamicComment" parameterType="java.lang.Integer">
+		delete from dynamic_comment
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.myplay.model.DynamicComment">
+		insert into dynamic_comment (id, content,
+		from_uid, did)
+		values (#{id,jdbcType=INTEGER}, #{content,jdbcType=VARCHAR},
+		#{fromUid,jdbcType=INTEGER}, #{did,jdbcType=INTEGER})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.myplay.model.DynamicComment">
+		update dynamic_comment
+		set content = #{content,jdbcType=VARCHAR},
+		to_uid = #{toUid,jdbcType=INTEGER},
+		from_uid = #{fromUid,jdbcType=INTEGER},
+		did = #{did,jdbcType=INTEGER}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<!-- 根据did查找我的动态评论 -->
+	<select id="selectCommentById" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select id, content, to_uid, from_uid, did
+		from dynamic_comment
+		where did = #{did,jdbcType=INTEGER}
+	</select>
+	<!-- 根据did查找这条动态的所有评论和评论者的信息 -->
+	<select id="selectDyCommentAndUser" parameterType="java.lang.Integer"
+		resultType="com.myplay.model.DyCommentBYUser">
+		select u.id uid,u.name,u.sex,u.signature,u.photourl,u.phone,u.password,dc.id
+		dcid,dc.content,dc.from_uid,dc.did
+		from user u,dynamic_comment dc where dc.from_uid=u.id and dc.did =
+		#{did,jdbcType=INTEGER}
+	</select>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select id, content, to_uid, from_uid, did
+		from dynamic_comment
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select id, content, to_uid, from_uid, did
+		from dynamic_comment
+	</select>
+</mapper>

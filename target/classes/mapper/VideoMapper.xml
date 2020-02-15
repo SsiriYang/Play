@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.VideoMapper">
+	<resultMap id="BaseResultMap" type="com.myplay.model.Video">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="title" jdbcType="VARCHAR" property="title" />
+		<result column="photourl" jdbcType="VARCHAR" property="photourl" />
+		<result column="videourl" jdbcType="VARCHAR" property="videourl" />
+		<result column="collectioncount" jdbcType="INTEGER" property="collectioncount" />
+		<result column="userid" jdbcType="INTEGER" property="userid" />
+		<result column="categoryid" jdbcType="INTEGER" property="categoryid" />
+		<result column="status" jdbcType="INTEGER" property="status" />
+		<result column="createTime" jdbcType="TIMESTAMP" property="createtime" />
+		<result column="showcount" jdbcType="INTEGER" property="showcount" />
+		<result column="vediodetail" jdbcType="VARCHAR" property="vediodetail" />
+		<result column="average" jdbcType="REAL" property="average" />
+	</resultMap>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from video
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.myplay.model.Video">
+		insert into video (id, title, photourl,
+		videourl, userid,
+		categoryid, createTime,
+		vediodetail
+		)
+		values (null, #{title,jdbcType=VARCHAR}, #{photourl,jdbcType=VARCHAR},
+		#{videourl,jdbcType=VARCHAR}, #{userid,jdbcType=INTEGER},
+		#{categoryid,jdbcType=INTEGER}, #{createtime,jdbcType=TIMESTAMP},
+		#{vediodetail,jdbcType=VARCHAR}
+		)
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.myplay.model.Video">
+		update video
+		set title = #{title,jdbcType=VARCHAR},
+		photourl = #{photourl,jdbcType=VARCHAR},
+		videourl = #{videourl,jdbcType=VARCHAR},
+		collectioncount = #{collectioncount,jdbcType=INTEGER},
+		userid = #{userid,jdbcType=INTEGER},
+		categoryid = #{categoryid,jdbcType=INTEGER},
+		status = #{status,jdbcType=INTEGER},
+		createTime = #{createtime,jdbcType=TIMESTAMP},
+		showcount = #{showcount,jdbcType=INTEGER},
+		vediodetail = #{vediodetail,jdbcType=VARCHAR},
+		average = #{average,jdbcType=REAL}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<select id="selectByPrimaryKey" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select id, title, photourl, videourl, collectioncount, userid, categoryid,
+		status,
+		createTime, showcount, vediodetail, average
+		from video
+		where id = #{id,jdbcType=INTEGER} and status = 1
+	</select>
+	<select id="selectVideosByType" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select id, title, photourl, videourl, collectioncount, userid, categoryid,
+		status,
+		createTime, showcount, vediodetail, average
+		from video
+		where categoryid = #{categoryid,jdbcType=INTEGER} and status = 1
+	</select>
+	<select id="selectByvivwcount" resultMap="BaseResultMap">
+		select id, title, photourl, videourl, collectioncount, userid, categoryid,
+		status,
+		createTime, showcount, vediodetail, average
+		from video
+		where status = 1
+		order by
+		showcount ASC limit 3 ;
+	</select>
+	<!-- 通过userid查找所以视频 -->
+	<select id="selectVideosByUid" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select id, title, photourl, videourl, collectioncount,userid, categoryid,
+		status,
+		createTime, showcount, vediodetail, average
+		from video
+		where userid= #{userid,jdbcType=INTEGER} and status=1
+	</select>
+	<!--我的收藏查询实现 -->
+	<select id="selectMyCollection" resultType="com.myplay.model.MyCollection">
+		select c.id cid, v.id vid,v.userid aid,title,v.photourl
+		vphoto,videourl,collectioncount,categoryid,status,createtime,showcount,vediodetail,a.photourl,a.name,a.signature
+		from video v, user a,collection c
+		where v.id=#{vid} and v.userid=#{aid} and v.userid=a.id and c.uid=#{uid}
+		and c.vid=#{vid}
+	</select>
+	<select id="selectAll" resultMap="BaseResultMap">
+		select id, title, photourl, videourl, collectioncount, userid, categoryid,
+		status,
+		createTime, showcount, vediodetail, average
+		from video where status =1
+	</select>
+	<!-- 倒叙视频列表展示 -->
+  	<select id="selectAllDesc" resultMap="BaseResultMap">
+  		select id, title, photourl, videourl, collectioncount, userid, categoryid, status, 
+    	createTime, showcount, vediodetail, average
+    	from video ORDER BY id desc
+  	</select>
+	<select id="recommend" resultType="com.myplay.model.VideoAuthor">
+		select v.id vid, u.id aid,title, v.photourl, videourl, collectioncount,
+		userid, categoryid, status,
+		createTime, showcount, vediodetail, average,u.name
+		from video v,user u where categoryid=#{cid} and v.userid=u.id order by
+		showcount desc
+	</select>
+
+	<!-- 审核通过/退回 -->
+	<update id="updateforpass" parameterType="int">
+		UPDATE video SET STATUS = 1 WHERE id = #{id,jdbcType=INTEGER}
+	</update>
+	<update id="updatefornotpass" parameterType="int">
+		UPDATE video SET STATUS = 0 WHERE id = #{id,jdbcType=INTEGER}
+	</update>
+	<!-- 模糊查询 -->
+	<select id="searchByWord" parameterType="string" resultMap="BaseResultMap">
+		select id, title, photourl, videourl, collectioncount, userid,
+		categoryid, status,
+		createTime, showcount, vediodetail, average
+		from video
+		where title like "%"#{title}"%"
+
+	</select>
+	<!-- 类型查询 -->
+	<select id="searchByCategory" resultMap="BaseResultMap"
+		parameterType="int">
+		select id, title, photourl, videourl, collectioncount, userid, categoryid,
+		status,
+		createTime, showcount, vediodetail, average
+		from video
+		where categoryid = #{categoryid,jdbcType=INTEGER}
+	</select>
+	<!-- 更新浏览次数 -->
+	<update id="updateVideoCount">
+		update video
+		set showcount = showcount+1
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<!-- 更新收藏次数 -->
+	<update id="updateVideoCollectionnum">
+		update video
+		set collectioncount = collectioncount+1
+		where id = #{vid,jdbcType=INTEGER}
+	</update>
+</mapper>

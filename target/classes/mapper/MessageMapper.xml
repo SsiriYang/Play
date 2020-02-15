@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.MessageMapper">
+  <resultMap id="BaseResultMap" type="com.myplay.model.Message">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="from_uid" jdbcType="INTEGER" property="fromUid" />
+    <result column="to_uid" jdbcType="INTEGER" property="toUid" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="createdate" jdbcType="TIMESTAMP" property="createdate" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from message
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.myplay.model.Message">
+    insert into message (id, from_uid, to_uid, 
+      content, createdate
+      )
+    values (#{id,jdbcType=INTEGER}, #{fromUid,jdbcType=INTEGER}, #{toUid,jdbcType=INTEGER}, 
+      #{content,jdbcType=VARCHAR}, #{createdate,jdbcType=TIMESTAMP} )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.myplay.model.Message">
+    update message
+    set from_uid = #{fromUid,jdbcType=INTEGER},
+      to_uid = #{toUid,jdbcType=INTEGER},
+      content = #{content,jdbcType=VARCHAR},
+      createdate = #{createdate,jdbcType=TIMESTAMP},
+      status = #{status,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, from_uid, to_uid, content, createdate, status
+    from message
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, from_uid, to_uid, content, createdate, status
+    from message
+  </select>
+   <select id="getInboxs"  resultType="com.myplay.model.LetterBox">
+     select  message.id,from_uid fromUid, message.to_uid toUid,content,createdate,status,s.name fromname,s.photourl
+	from message,user u,user s 
+	where to_uid = #{id} 
+	and u.id = #{id}
+	and from_uid = s.id
+	and status !='2'
+  </select>
+  <select id="getOutboxs"  resultType="com.myplay.model.LetterBox">
+     select  message.id,from_uid, message.to_uid,content,createdate,status,s.name toname,s.photourl
+	from message,user u,user s 
+	where from_uid = #{id} 
+	and u.id = #{id}
+	and to_uid = s.id
+	and status !='2'
+  </select>
+   <select id="getMessageById"  resultType="com.myplay.model.LetterBox">
+     select  content,u.name fromname ,s.name toname from message,user u,user s
+	where message.id = #{id} and from_uid = u.id and to_uid = s.id
+  </select>
+ <update id="close" parameterType="com.myplay.model.Message">
+    update message
+    set 
+      status = '2'
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="look" parameterType="com.myplay.model.Message">
+    update message
+    set 
+      status = '1'
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="inboxnolook"  resultType="java.lang.Integer">
+     select count(*) nums from message where to_uid = #{id,jdbcType=INTEGER} and status = '0'
+  </select>
+</mapper>

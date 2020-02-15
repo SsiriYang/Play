@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.FollowMapper">
+  <resultMap id="BaseResultMap" type="com.myplay.model.Follow">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="to_uid" jdbcType="INTEGER" property="toUid" />
+    <result column="from_uid" jdbcType="INTEGER" property="fromUid" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from follow
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.myplay.model.Follow">
+    insert into follow (to_uid, from_uid)
+    values (#{toUid,jdbcType=INTEGER}, #{fromUid,jdbcType=INTEGER})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.myplay.model.Follow">
+    update follow
+    set to_uid = #{toUid,jdbcType=INTEGER},
+      from_uid = #{fromUid,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, to_uid, from_uid
+    from follow
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <!--根据用户id查找所有的关注 -->
+   <select id="selectMyFollow" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, to_uid, from_uid
+    from follow
+    where from_uid = #{from_uid,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, to_uid, from_uid
+    from follow
+  </select>
+  <select id="loadFollow" resultType="int">
+  	select id,to_uid,from_uid from follow where from_uid=#{fromUid} and to_uid=#{toUid}
+  </select>
+  
+  <delete id="deleteFollow">
+  	 delete from follow
+    where to_uid = #{toUid,jdbcType=INTEGER} and from_uid=#{fromUid,jdbcType=INTEGER}
+  </delete>
+</mapper>

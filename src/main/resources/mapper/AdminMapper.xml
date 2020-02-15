@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.AdminMapper">
+  <resultMap id="BaseResultMap" type="com.myplay.model.Admin">
+    <id column="admin_id" jdbcType="INTEGER" property="adminId" />
+    <result column="admin_name" jdbcType="VARCHAR" property="adminName" />
+    <result column="admin_phone" jdbcType="VARCHAR" property="adminPhone" />
+    <result column="admin_photo" jdbcType="VARCHAR" property="adminPhoto" />
+    <result column="admin_autograph" jdbcType="VARCHAR" property="adminAutograph" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from admin
+    where admin_id = #{adminId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.myplay.model.Admin">
+    insert into admin (admin_id, admin_name, admin_phone, 
+      admin_photo, admin_autograph)
+    values (#{adminId,jdbcType=INTEGER}, #{adminName,jdbcType=VARCHAR}, #{adminPhone,jdbcType=VARCHAR}, 
+      #{adminPhoto,jdbcType=VARCHAR}, #{adminAutograph,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.myplay.model.Admin">
+    update admin
+    set admin_name = #{adminName,jdbcType=VARCHAR},
+      admin_phone = #{adminPhone,jdbcType=VARCHAR},
+      admin_photo = #{adminPhoto,jdbcType=VARCHAR},
+      admin_autograph = #{adminAutograph,jdbcType=VARCHAR}
+    where admin_id = #{adminId,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select admin_id, admin_name, admin_phone, admin_photo, admin_autograph
+    from admin
+    where admin_id = #{adminId,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select admin_id, admin_name, admin_phone, admin_photo, admin_autograph
+    from admin
+  </select>
+</mapper>

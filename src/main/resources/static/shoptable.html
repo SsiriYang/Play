@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<script type="text/javascript" src="resource/bootstrap/js/jquery-2.1.1.js"></script>
+<link href= "resource/bootstrap/css/bootstrap.min.css"/>
+<script type="text/javascript" src="resource/bootstrap/js/bootstrap.min.js"></script>
+
+<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+<link rel="stylesheet"
+	href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+<script
+	src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+
+<title>商品管理</title>
+</head>
+
+<body>
+	<fieldset style="width: 100%">
+		<legend >商品管理</legend>
+	</fieldset>	
+	<div style="float: none; margin-bottom: 10px; height: 30px;">
+		<div style="float: left;">
+			<button type="button" id="addshopbtn" class="btn btn-primary">添加商品</button>
+			<button type="button" id="delall" class="btn btn-danger">批量删除</button>
+		</div>
+		<div class="col-lg-6" style="width: 200px;float: left;">
+			<div class="input-group" style="float: left;">
+				<input type="text" class="form-control" value="" id="searchinput"
+					placeholder="Search for..."> <span
+					class="input-group-btn">
+					<button class="btn btn-default" id="searchbtn" type="button"
+						onclick="getvalue()">Go!</button>
+				</span>
+			</div>
+		</div>
+		<div style="float: left; width: 150px; overflow: auto;">
+			<select class="form-control" style="height: 34px;"
+				id="categorylist"></select>
+		</div>
+	</div>
+	<div>
+		<table class="table table-bordered" id="shop_table">
+			<thead style="background-color: #e2e2e2">
+				<th style="width: 50px;"><input type="checkbox" id="check_all"/> </th>
+				<th style="width: 100px;">编号</th>
+				<th style="width: 150px;">商品</th>
+				<th style="">商品图片</th>
+				<th style="width: 150px;">商品价格</th>
+				<th style="width: 300px;">商品说明</th>
+				<!-- <th style="width: 150px;">商品类型</th> -->
+				<th style="width: 200px;">操作</th>
+			</thead>
+			<tbody align="left">
+			</tbody>
+		</table>
+	</div>
+
+	<span id="pageinformation"></span>
+	<!-- 分页 -->
+	<div>
+		<nav style="float: right;" aria-label="Page navigation" id="pages"></nav>
+	</div>
+
+	<!-- addModal -->
+	<div class="modal fade" id="shopaddModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">商品新增</h4>
+				</div>
+
+
+				<div class="modal-body">
+					<form class="form-horizontal" id="addshopform" action=""  enctype="multipart/form-data">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">商品名称</label>
+							<div class="col-sm-10">
+								<input type="text" name="name" class="form-control" id="name"
+									placeholder="shopname">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">商品价格</label>
+							<div class="col-sm-10">
+								<input type="text" name="price" class="form-control" id="price"
+									placeholder="shopprice">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">商品说明</label>
+							<div class="col-sm-10">
+								<input type="text" name="introduce" class="form-control" id="introduce"
+									placeholder="shopintroduce">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">商品类型</label>
+							<div class="col-sm-10" style="width: 200px;">
+								<select class="form-control" name="typeId" style="height: 34px;" id="typeId"></select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">商品图片</label>
+							<div class="col-sm-10">
+								<input type="file" value="" name="picture" class="form-control" id="picture">
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" id="savebtn">提交</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- editModal -->
+	<div class="modal fade" id="shopeditModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">商品修改</h4>
+				</div>
+
+
+				<div class="modal-body">
+					<form class="form-horizontal">
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">商品名称</label>
+							<div class="col-sm-10">
+								<input type="email" name="e_name" class="form-control" id="e_name"
+									placeholder="shopname">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">商品价格</label>
+							<div class="col-sm-10">
+								<input type="text" name="e_price" class="form-control" id="e_price"
+									placeholder="shopprice">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">商品说明</label>
+							<div class="col-sm-10">
+								<input type="text" name="e_introduce" class="form-control" id="e_introduce"
+									placeholder="shopintroduce">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputPassword3" class="col-sm-2 control-label">商品类型</label>
+							<div class="col-sm-10" style="width: 200px;">
+								<select class="form-control" name="e_typeId" style="height: 34px;" id="e_typeId"></select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="inputEmail3" class="col-sm-2 control-label">商品图片</label>
+							<div class="col-sm-10">
+								<input type="file" value="" name="e_picture" class="form-control" id="e_picture">
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" id="submiteditbtn">提交</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script>
+	/* 数据交互 */
+	/* 商品表格内容展示 */
+	/* 数据交互 */
+	$(function() {
+		topage(1);
+		getcategory();
+	});
+	function topage(currentpage) {
+		$.ajax({
+			url : "http://127.0.0.1/admin/getshoplist.action",
+			data : "currentpage=" + currentpage,
+			type : "get",
+			success : function(result) {
+				//填充表格数据
+				maketbody(result);
+				//分页信息
+				pageinformation(result);
+				//分页按钮
+				pagebutton(result);
+			}
+
+		});
+	}
+	function maketbody(result) {
+		$("#shop_table tbody").empty();
+		var shoplist = result.data.pageinfo.list;
+		$.each(shoplist,function(index, shop) {
+			var checkbox = $("<td></td>").append($("<input class='check_item'/>").attr("type","checkbox"));
+			
+			var id = $("<td></td>").append(index+ (result.data.pageinfo.pageNum - 1)* result.data.pageinfo.pageSize+ 1);
+			var name = $("<td></td>").append(shop.name).attr(
+					"id", "name" + shop.id);
+			var picture = $("<td></td>").css("padding", "0")
+					.append($("<img />").attr("src",shop.picture).attr("id","picture" + shop.id).css("height","80px"));
+			var price = $("<td></td>").append(shop.price).attr(
+					"id", "price" + shop.id);
+			var introduce = $("<td></td>").append(
+					shop.introduce).attr("id",
+					"introduce" + shop.id);
+			/* var typeId = $("<td></td>").append(shop.typeId)
+					.attr("id", "typeId" + shop.id).attr(
+							"data-tid", shop.typeId); */
+
+			var operation = $("<td></td>")
+					.append(
+							$("<button></button>")
+									.append("编辑")
+									.addClass("btn btn-success editbtn")
+									.attr("name", shop.id))
+					.append(
+							$("<button></button>")
+									.append("删除")
+									.addClass("btn btn-danger delbtn")
+									.attr("name", shop.id));
+			$("<tr></tr>").append(checkbox).append(id).append(name).append(
+					picture).append(price).append(introduce)
+					.append(operation).appendTo(
+							"#shop_table tbody");
+		})
+	}
+	function pageinformation(result) {
+		$("#pageinformation").empty();
+		$("#pageinformation").append(
+				"当前是第" + result.data.pageinfo.pageNum + "页, 总"
+						+ result.data.pageinfo.pages + "页，总"
+						+ result.data.pageinfo.total + "条");
+	}
+	function pagebutton(result) {
+		$("#pages").empty();
+		var ul = $("<ul></ul>").addClass("pagination");
+		var firstpage_a = $("<a></a>").append("首页")
+				.attr("href", "javascript:;");
+		var firstpage = $("<li></li>").append(firstpage_a).click(function() {
+			topage(1);
+		});
+		var prepage_a = $("<a></a>").append("上一页").attr("href", "javascript:;");
+		var prepage = $("<li></li>").append(prepage_a).addClass("li").click(
+				function() {
+					topage(result.data.pageinfo.pageNum - 1);
+				});
+		/* 判断当前是否为第一页 */
+		if (result.data.pageinfo.isFirstPage) {
+			firstpage.addClass("disabled");
+			prepage.addClass("disabled");
+		}
+
+		var nextpage_a = $("<a></a>").append("下一页")
+				.attr("href", "javascript:;");
+		var nextpage = $("<li></li>").append(nextpage_a).addClass("li").click(
+				function() {
+					topage(result.data.pageinfo.pageNum + 1);
+				});
+		var lastpage_a = $("<a></a>").append("尾页").attr("href", "javascript:;");
+		var lastpage = $("<li></li>").append(lastpage_a).addClass("li").click(
+				function() {
+					topage(result.data.pageinfo.pages);
+				});
+		/* 判断当前是是否有后一页 */
+		if (!result.data.pageinfo.hasNextPage) {
+			nextpage.addClass("disabled");
+			lastpage.addClass("disabled");
+		}
+		ul.append(firstpage).append(prepage);
+		$.each(result.data.pageinfo.navigatepageNums, function(index, item) {
+			var page = $("<li></li>").append(
+					$("<a></a>").append(item).attr("href", "javascript:;"))
+					.addClass("li");
+			if (result.data.pageinfo.pageNum == item) {
+				page.addClass("active");
+			}
+			/* 绑定跳转页面方法 */
+			page.click(function() {
+				topage(item);
+			});
+			ul.append(page);
+		});
+		ul.append(nextpage).append(lastpage).appendTo("#pages");
+	}
+
+	/* 获取商品类型 */
+	function getcategory() {
+		$.ajax({
+			url : "http://127.0.0.1/admin/getgoodtype.action",
+			type : "get",
+			success : function(result) {
+				if (result != null) {
+					//填充表格数据
+					makecategorylist(result);
+				} else {
+					layer.msg('数据获取异常！', {
+						icon : 3
+					});
+				}
+			}
+		});
+	}
+	/* 添加下拉框数据 */
+	function makecategorylist(result) {
+		$("#categorylist").empty();
+		$.each(result, function(index, item) {
+			var op = $("<option></option>").append(item.typeName).attr("name",
+					item.id).appendTo('#categorylist');
+		});
+	}
+	/* 类型选择框选中事件 */
+	$('#categorylist').change(function() {
+		//alert($('#categorylist  option:selected').val()+$('#categorylist  option:selected').attr("name"));
+		topagebycategoryid(1, $('#categorylist  option:selected').attr("name"))
+	});
+	/* 类型查询 分页回显*/
+	function topagebycategoryid(currentpage, categoryid) {
+		$.ajax({
+			url : "http://127.0.0.1/admin/searchbyshopcategory.action",
+			data : {
+				"categoryid" : categoryid,
+				"currentpage" : currentpage
+			},
+			type : "get",
+			success : function(result) {
+				//填充表格数据
+				maketbody(result);
+				//分页信息
+				pageinformation(result);
+				//分页按钮
+				pagebuttonforgoodtype(result, categoryid);
+			}
+
+		});
+	}
+	function pagebuttonforgoodtype(result, categoryid) {
+		$("#pages").empty();
+		var ul = $("<ul></ul>").addClass("pagination");
+		var firstpage_a = $("<a></a>").append("首页").attr("href", "#");
+		var firstpage = $("<li></li>").append(firstpage_a).click(function() {
+			topagebycategoryid(1, categoryid);
+		});
+		var prepage_a = $("<a></a>").append("上一页").attr("href", "#");
+		var prepage = $("<li></li>").append(prepage_a).addClass("li").click(
+				function() {
+					topagebycategoryid(result.data.pageinfo.pageNum - 1,
+							categoryid);
+				});
+		/* 判断当前是否为第一页 */
+		if (result.data.pageinfo.isFirstPage) {
+			firstpage.addClass("disabled");
+			prepage.addClass("disabled");
+		}
+
+		var nextpage_a = $("<a></a>").append("下一页").attr("href", "#");
+		var nextpage = $("<li></li>").append(nextpage_a).addClass("li").click(
+				function() {
+					topagebycategoryid(result.data.pageinfo.pageNum + 1,
+							categoryid);
+				});
+		var lastpage_a = $("<a></a>").append("尾页").attr("href", "#");
+		var lastpage = $("<li></li>").append(lastpage_a).addClass("li").click(
+				function() {
+					topagebycategoryid(result.data.pageinfo.pages, categoryid);
+				});
+		/* 判断当前是是否有后一页 */
+		if (!result.data.pageinfo.hasNextPage) {
+			nextpage.addClass("disabled");
+			lastpage.addClass("disabled");
+		}
+		ul.append(firstpage).append(prepage);
+		$.each(result.data.pageinfo.navigatepageNums,
+				function(index, item) {
+					var page = $("<li></li>").append(
+							$("<a></a>").append(item).attr("href", "#"))
+							.addClass("li");
+					if (result.data.pageinfo.pageNum == item) {
+						page.addClass("active");
+					}
+					/* 绑定跳转页面方法 */
+					page.click(function() {
+						topagebycategoryid(item, categoryid);
+					});
+					ul.append(page);
+				});
+		ul.append(nextpage).append(lastpage).appendTo("#pages");
+	}
+	/* 模糊查询 *********************************/
+
+	function getvalue() {
+		var currentpage = 1;
+		var searchword = document.getElementById("searchinput").value;
+		document.getElementById("searchinput").value = "";
+		topagebyshopsearch(currentpage, searchword);
+	}
+	function topagebyshopsearch(currentpage, searchword) {
+		$.ajax({
+			url : "http://127.0.0.1/admin/searchshop.action",
+			data : {
+				"searchword" : searchword,
+				"currentpage" : currentpage
+			},
+			type : "get",
+			success : function(result) {
+				//填充表格数据
+				maketbody(result);
+				//分页信息
+				pageinformation(result);
+				//分页按钮
+				pagebuttonforshopsearch(result, searchword);
+			}
+
+		});
+	}
+	/* 查询分页 */
+	function pagebuttonforshopsearch(result, searchword) {
+		$("#pages").empty();
+		var ul = $("<ul></ul>").addClass("pagination");
+		var firstpage_a = $("<a></a>").append("首页")
+				.attr("href", "javascript:;");
+		var firstpage = $("<li></li>").append(firstpage_a).click(function() {
+			topagebyshopsearch(1, searchword);
+		});
+		var prepage_a = $("<a></a>").append("上一页").attr("href", "javascript:;");
+		var prepage = $("<li></li>").append(prepage_a).addClass("li").click(
+				function() {
+					topagebyshopsearch(result.data.pageinfo.pageNum - 1,
+							searchword);
+				});
+		/* 判断当前是否为第一页 */
+		if (result.data.pageinfo.isFirstPage) {
+			firstpage.addClass("disabled");
+			prepage.addClass("disabled");
+		}
+
+		var nextpage_a = $("<a></a>").append("下一页")
+				.attr("href", "javascript:;");
+		var nextpage = $("<li></li>").append(nextpage_a).addClass("li").click(
+				function() {
+					topagebyshopsearch(result.data.pageinfo.pageNum + 1,
+							searchword);
+				});
+		var lastpage_a = $("<a></a>").append("尾页").attr("href", "javascript:;");
+		var lastpage = $("<li></li>").append(lastpage_a).addClass("li").click(
+				function() {
+					topagebyshopsearch(result.data.pageinfo.pages, searchword);
+				});
+		/* 判断当前是是否有后一页 */
+		if (!result.data.pageinfo.hasNextPage) {
+			nextpage.addClass("disabled");
+			lastpage.addClass("disabled");
+		}
+		ul.append(firstpage).append(prepage);
+		$.each(result.data.pageinfo.navigatepageNums, function(index, item) {
+			var page = $("<li></li>").append(
+					$("<a></a>").append(item).attr("href", "javascript:;"))
+					.addClass("li");
+			if (result.data.pageinfo.pageNum == item) {
+				page.addClass("active");
+			}
+			/* 绑定跳转页面方法 */
+			page.click(function() {
+				topagebyshopsearch(item, searchword);
+			});
+			ul.append(page);
+		});
+		ul.append(nextpage).append(lastpage).appendTo("#pages");
+	}
+	/* 添加商品 */
+	$("#addshopbtn").click(
+		function(){
+			$("#shopaddModal select").empty();
+			$.ajax({
+				url : "http://127.0.0.1/admin/getgoodtype.action",
+				type : "get",
+				success : function(result) {
+					$.each(result, function(index, item) {
+						var option = $("<option></option>").append(
+								item.typeName).attr("value", item.id);
+						option.appendTo("#shopaddModal select");
+					});
+				}
+			});
+	
+			$("#shopaddModal").modal({
+				backdrop : "static"
+			});
+	});
+	/* 点击新增保存 */
+	
+	$("#savebtn").click(function() {
+		//var formData = new FormData($("#addshopform")[0]);
+		var formData = new FormData();
+	    var name = $("#name").prop("value");
+	    //var picture = $("#picture")[0].files[0];
+	    var price = $("#price").prop("value");
+	    var introduce = $("#introduce").prop("value");
+	    var typeId = $("#typeId").prop("value");
+
+		//formData.append(document.querySelector("#addshopform")[0])
+		formData.append("name",name);
+		formData.append("price",price);
+		formData.append("introduce",introduce);
+		formData.append("typeId",typeId);
+		formData.append("file",document.getElementById("picture").files[0]);
+		
+		
+		$.ajax({
+			url : "http://127.0.0.1/admin/addshop.action",
+			data: formData,
+			type : "post",
+			dataType:"JSON",
+			processData : false,    
+	        contentType : false,  
+			success : function(result) {
+				topage(99);
+			}
+		});
+		$("#shopaddModal").modal('hide');
+		topage(99);
+	});
+	/* 修改商品 */
+	var editid; 
+	$(document).on("click",".editbtn",function(){
+		editid = $(this).attr("name");
+		$("#shopeditModal select").empty();
+		$.ajax({
+			url : "http://127.0.0.1/admin/getgoodtype.action",
+			type : "get",
+			success : function(result) {
+				$.each(result, function(index, item) {
+					var option = $("<option></option>").append(
+							item.typeName).attr("value", item.id);
+					option.appendTo("#shopeditModal select");
+				});
+			}
+		});
+		/* 修改商品数据回显 */
+		getgoodbyid($(this).attr("name"));
+		/* 打开form表单 */
+		$("#shopeditModal").modal({
+			backdrop : "static"
+		});
+		
+		
+	});
+	$("#submiteditbtn").click(function(){
+		//alert();
+		/* 提交修改数据并保存 */
+		var formData = new FormData();
+	    var name = $("#e_name").prop("value");
+	    var price = $("#e_price").prop("value");
+	    var introduce = $("#e_introduce").prop("value");
+	    var typeId = $("#e_typeId").prop("value");
+
+		formData.append("id",editid);
+		formData.append("name",name);
+		formData.append("price",price);
+		formData.append("introduce",introduce);
+		formData.append("typeId",typeId);
+		formData.append("file",document.getElementById("e_picture").files[0]);
+		
+		$.ajax({
+			url : "http://127.0.0.1/admin/editshop.action",
+			data: formData,
+			type : "post",
+			dataType:"JSON",
+			processData : false,    
+	        contentType : false,  
+			success : function(result) {
+				$("#shopeditModal").modal('hide');
+				topage(99);
+			}
+		});
+	});
+	/* 修改商品数据回显 */
+	function getgoodbyid(id){
+		$.ajax({
+			url : "http://127.0.0.1/admin/getgoodbyid.action",
+			data: {"goodid":id},
+			type : "get",
+			success : function(result) {
+				$("#e_name").attr("value",result.name);
+				$("#e_price").attr("value",result.price);
+				$("#e_introduce").attr("value",result.introduce);
+				$("#e_picture").attr("value",result.picture);
+			}
+		});
+	}
+	$(document).on("click",".delbtn",function(){
+		var delname = $(this).parents("tr").find("td:eq(1)").text();
+		if(confirm("确定删除"+delname+"么？")){
+			$.ajax({
+				url : "http://127.0.0.1/admin/delgoodbyid.action",
+				data : "goodids="+$(this).attr("name"),
+				type : "get",
+				success : function(result) {
+					//alert("删除成功");
+					topage(1);
+				}
+			});
+		}
+		
+	});
+	
+	//全选
+	$("#check_all").click(function(){
+		$(".check_item").prop("checked",$(this).prop("checked"));
+	});
+	$(document).on("click",".check_item",function(){
+		var flag = $(".check_item:checked").length==$(".check_item").length;
+		$("#check_all").prop("checked",flag);
+	});
+	//批量删除
+	$("#delall").click(function(){
+		var names = "";
+		var idstying = "";
+		$.each($(".check_item:checked"),function(){
+			names += $(this).parents("tr").find("td:eq(2)").text();
+			idstying += $(this).parents("tr").find("td:eq(6)").children("button:eq(1)").prop("name")+"-";
+		});
+		idstying = idstying.substring(0,idstying.length-1);
+		if(confirm("确认删除【"+names+"】么")){
+			alert(idstying);
+			 $.ajax({
+				url : "http://127.0.0.1/admin/delgoodbyid.action",
+				data : "goodids="+idstying,
+				type : "get",
+				success : function(result) {
+					//alert("删除成功");
+					topage(1);
+				}
+			}); 
+		}
+		
+	});
+</script>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

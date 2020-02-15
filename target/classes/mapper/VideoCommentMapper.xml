@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.VideoCommentMapper">
+ <resultMap id="BaseResultMap" type="com.myplay.model.VideoComment">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="uid" jdbcType="INTEGER" property="uid" />
+    <result column="vid" jdbcType="INTEGER" property="vid" />
+    <result column="creattime" jdbcType="TIMESTAMP" property="creattime" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from video_comment
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.myplay.model.VideoComment">
+    insert into video_comment (content, uid, 
+      vid, creattime)
+    values (#{content,jdbcType=VARCHAR}, #{uid,jdbcType=INTEGER}, 
+      #{vid,jdbcType=INTEGER}, #{creattime,jdbcType=TIMESTAMP})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.myplay.model.VideoComment">
+    update video_comment
+    set content = #{content,jdbcType=VARCHAR},
+      uid = #{uid,jdbcType=INTEGER},
+      vid = #{vid,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, content, uid, vid, creattime
+    from video_comment
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultType="com.myplay.model.UserComment">
+    select u.id, name,sex,signature,photourl,password,phone,content, uid, vid
+    from video_comment v,user u where u.id=v.uid
+  </select>
+  
+  <select id="selectNewComment" resultType="com.myplay.model.UserComment">
+  	select u.id, name,sex,signature,photourl,password,phone,content, uid, vid
+    from video_comment v,user u where u.id=v.uid and v.vid=#{vid} order by creattime desc,u.id desc
+  </select>
+  
+  <select id="getMyComment" resultType="com.myplay.model.UserComment">
+    select u.id, name,sex,signature,photourl,password,phone,content, uid, vid
+    from video_comment v,user u where u.id=v.uid and u.id=#{id} and v.vid=#{vid}
+  </select>
+  
+  <select id="selectAllCommentsByVid" resultType="com.myplay.model.UserComment">
+  	select u.id, name,sex,signature,photourl,password,phone,content, uid, vid
+    from video_comment v,user u where u.id=v.uid and v.vid=#{vid}
+  </select>
+</mapper>

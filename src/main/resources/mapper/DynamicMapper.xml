@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.DynamicMapper">
+	<resultMap id="BaseResultMap" type="com.myplay.model.Dynamic">
+		<id column="id" jdbcType="INTEGER" property="id" />
+		<result column="title" jdbcType="VARCHAR" property="title" />
+		<result column="createtime" jdbcType="TIMESTAMP" property="createtime" />
+		<result column="uid" jdbcType="INTEGER" property="uid" />
+		<result column="content" jdbcType="LONGVARCHAR" property="content" />
+	</resultMap>
+	<delete id="deleteDynamicById" parameterType="java.lang.Integer">
+		delete from dynamic
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.myplay.model.Dynamic">
+		insert into dynamic (createtime,
+		uid, content)
+		values (#{createtime,},
+		#{uid,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR})
+	</insert>
+	<update id="updateByPrimaryKey" parameterType="com.myplay.model.Dynamic">
+		update dynamic
+		set title = #{title,jdbcType=VARCHAR},
+		createtime = #{createtime,jdbcType=TIMESTAMP},
+		uid = #{uid,jdbcType=INTEGER},
+		content = #{content,jdbcType=LONGVARCHAR}
+		where id = #{id,jdbcType=INTEGER}
+	</update>
+	<select id="selectDynamicById" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select id, title, createtime, uid, content
+		from dynamic
+		where id = #{id,jdbcType=INTEGER}
+	</select>
+	<!--根据userid查找用户的动态 -->
+	<select id="selectDynamicByUserId" parameterType="java.lang.Integer"
+		resultMap="BaseResultMap">
+		select id, title, createtime, uid, content
+		from dynamic
+		where uid = #{uid,jdbcType=INTEGER}
+	</select>
+	<!-- 查找我的动态的评论 -->
+	<select id="selectMyDynamicComment" resultType="com.myplay.model.MyDynamicComment">
+		select dc.id id, did,content,name,photourl,from_uid from dynamic_comment
+		dc,user u
+		where dc.did=#{did} and from_uid=u.id
+	</select>
+	<select id="selectdynamibycuser" parameterType="java.lang.Integer"
+		resultType="com.myplay.model.dynamicAndUser">
+		select
+		t.id,t.t.title,t.createtime,t.uid,t.content,t.id_u,t.name,t.sex,
+		t.signature,t.photourl,t.phone from
+		(select d.id,d.title,d.createtime,
+		d.uid,d.content,u.id id_u,u.name,
+		u.sex,u.signature,u.photourl,u.phone from dynamic d,user u
+		where d.uid=u.id)
+		t,follow f where f.from_uid=#{to_id}
+		and f.to_uid =t.uid
+	</select>
+</mapper>

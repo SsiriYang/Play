@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>管理员系统首页</title>
+    <script type="text/javascript" src="resource/bootstrap/js/jquery-2.1.1.js"></script>
+    <link rel="stylesheet" href="resource/layui/css/layui.css">
+</head>
+
+<body class="layui-layout-body">
+    <div class="layui-layout layui-layout-admin">
+        <div class="layui-header">
+            <div class="layui-logo" style="font-size: 30px">MyPlay</div>
+            <!-- 头部区域（可配合layui已有的水平导航） -->
+            <ul class="layui-nav layui-layout-left">
+               <!--  <li class="layui-nav-item"><a href="">控制台</a></li>
+                <li class="layui-nav-item"><a href="">商品管理</a></li>
+                <li class="layui-nav-item"><a href="">用户</a></li> -->
+                <!-- <li class="layui-nav-item">
+                    <a href="javascript:;">榜上榜</a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="">热播榜</a></dd>
+                        <dd><a href="">关注榜</a></dd>
+                    </dl>
+                </li> -->
+            </ul>
+            <ul class="layui-nav layui-layout-right">
+                <li class="layui-nav-item">
+                    <a href="javascript:;">
+						<p id="aname">SCJ</p>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a href="javascript:;" id="personbtn">退出</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+
+        <div class="layui-side layui-bg-black">
+            <div class="layui-side-scroll">
+                <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+                <ul class="layui-nav layui-nav-tree" lay-filter="test">
+                    <li class="layui-nav-item layui-nav-itemed">
+                        <a class="" href="javascript:;">数据管理</a>
+                        <dl class="layui-nav-child">
+                            <dd><a target="main" href="javascript:;" data-id="videotable"
+                                    data-href="videotable.html">
+                                    视频管理</a></dd>
+                            <dd><a target="main" href="javascript:;" data-id="shoptable" data-href="shoptable.html">
+                                    商品管理</a></dd>
+                            <dd><a target="main" href="javascript:;" data-id="systemNotice" data-href="systemNotice.html">
+                            系统公告</a></dd>
+                        </dl>
+                    </li>
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">类型管理</a>
+                        <dl class="layui-nav-child">
+                            <!-- <dd><a target="main" href="javascript:;" data-id="personalCenter"
+                                    data-href="vue/personalCenter.html">
+                                    个人中心</a></dd> -->
+                            <dd><a target="main" href="javascript:;" data-id="videotypetable"
+                                    data-href="videotypetable.html">
+                                    影视类型</a></dd>
+                            <dd><a target="main" href="javascript:;" data-id="shoptypetable"
+                                    data-href="shoptypetable.html">
+                                    商品类型</a></dd>
+                        </dl>
+                    </li>
+                   
+                </ul>
+            </div>
+        </div>
+
+        <div class="layui-body" style="overflow: auto;">	
+            <!-- 内容主体区域 -->
+        	<div class="layui-tab layui-tab-brief" lay-filter="demo" lay-allowClose="true">
+                <ul class="layui-tab-title" style="margin-top: -10px">
+
+                </ul>
+                <div class="layui-tab-content" style="margin-top: -10px;">
+
+                </div>
+            </div>
+            
+        </div>
+
+        <div class="layui-footer" style="height: 50px;overflow: hidden;">
+            <!-- 底部固定区域 -->
+            © Myplay
+        </div>
+    </div>
+    
+    <script src="resource/layui/layui.js"></script>
+    <script>
+        //JavaScript代码区域
+        layui.use(['element', 'layer', 'jquery'], function () {
+            var element = layui.element,
+                layer = layui.layer,
+                $ = layui.$;
+
+            // tab切换
+            $('[data-href]').click(function () {
+
+                if ($(`[lay-id="${$(this).data("id")}"]`).length === 0) {
+                    element.tabAdd('demo', {
+                        title: $(this).text(),
+                        content: `
+                            <iframe name="main" src="${$(this).data("href")}" frameborder="0" scrolling="no"
+                                style="width:100%;height:500px;"></iframe>
+                            `,
+                        id: $(this).data("id")
+                    });
+                }
+
+                element.tabChange('demo', $(this).data("id"));
+            })
+            $("#personbtn").click(function(){
+            	window.location.href="http://127.0.0.1/adminlogin.html";
+           	});
+        });
+       	
+    </script>
+</body>
+
+</html>

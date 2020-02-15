@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.myplay.mapper.GoodsTypeMapper">
+  <resultMap id="BaseResultMap" type="com.myplay.model.GoodsType">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="type_name" jdbcType="VARCHAR" property="typeName" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from goods_type
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.myplay.model.GoodsType">
+    insert into goods_type (id, type_name)
+    values (#{id,jdbcType=INTEGER}, #{typeName,jdbcType=VARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.myplay.model.GoodsType">
+    update goods_type
+    set type_name = #{typeName,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select id, type_name
+    from goods_type
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectType" resultMap="BaseResultMap">
+    select id, type_name
+    from goods_type
+  </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+      select id, type_name from goods_type
+  </select>
+</mapper>

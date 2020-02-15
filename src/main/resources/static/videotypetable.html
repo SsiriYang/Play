@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+
+    <link href="resource/bootstrap/css/bootstrap.min.css" />
+    <script src="resource/bootstrap/js/jquery-2.1.1.js"></script>
+    <script src="resource/bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="resource/layui/css/layui.css">
+    <title>影视类型</title>
+</head>
+
+<body>
+    <fieldset class="layui-elem-field layui-field-title" style="overflow: hidden;width: 100%">
+        <legend>影视类型</legend>
+        <div class="layui-field-box" style="padding: 10px 10px">
+            <!-- 内容区域 -->
+            <div>
+                <button style="float: left" type="button" id="addshop" class="layui-btn layui-btn-sm"><i
+                        class="layui-icon layui-icon-add-1"></i> 添加类型</button>
+            </div>
+            <div>
+                <table class="layui-table" id="categorytable">
+
+                    <thead>
+                        <tr>
+                            <th>类型编号</th>
+                            <th>类型名称</th>
+                            <th style="width: 150px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- <tr>
+                            <td>
+                                <form class="layui-form">
+                                    <input type="checkbox" name="" lay-skin="primary">
+                                </form>
+                            </td>
+                            <td>许闲心</td>
+                            <td>2016-11-28</td>
+
+                            <td>
+                                <button type="button" class="layui-btn layui-btn-sm">
+                                    <i class="layui-icon">&#xe640;</i>
+                                </button>
+                            </td> 
+                        </tr> -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </fieldset>
+    <template id="addform">
+        <form class="form-horizontal layui-form-pane" style="padding: 10px;overflow: hidden;" id="addform">
+            <div class="layui-form-item">
+                <label class="layui-form-label" style="width: 100px;">类型名称</label>
+                <div class="layui-input-block" style="width: 180px;">
+                    <input type="text" name="name" id="name" value="" required lay-verify="required" placeholder="请输入类型名称"
+                        autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button style="float: left;margin-left: 110px;" type="button" id="addtype"
+                        class="layui-btn">提交</button>
+                </div>
+            </div>
+        </form>
+    </template>
+</body>
+<script src="resource/layui/layui.js"></script>
+<script>
+    //JavaScript代码区域
+    layui.use(['element', 'table', 'form', 'jquery', 'layer'], function () {
+        var element = layui.element,
+            table = layui.table,
+            form = layui.form,
+            $ = layui.$,
+            layer = layui.layer;
+		
+        var addform;
+        $('#addshop').click(function () {
+            addform = layer.open({
+                title: '添加类型',
+                type: 1,
+                skin: 'layui-layer-rim', //加上边框
+                area: ['400px', '250px'], //宽高
+                content: $('#addform').html()
+
+            });
+        });
+		
+        
+        
+        /* 页面加载显示数据 */
+        $(function() {
+    		getCategoryList();
+    	});
+    	function getCategoryList() {
+    		$.ajax({
+    			url : "http://127.0.0.1/admin/getcategory.action",
+    			type : "get",
+    			success : function(result) {
+    				//填充表格数据
+    				maketbody(result);
+    			}
+    	
+    		});
+    	}
+        function maketbody(result){
+        	$("#categorytable tbody").empty();
+        	$.each(result,function(index,category){
+        		var typecode = $("<td></td>").append(index+1);
+        		var name = $("<td></td>").append(category.name);
+        		var operation = $("<td></td>").append($("<button></button>").append("删除").attr("name", category.id).addClass("addBtn layui-btn layui-btn-sm layui-btn-danger"));
+        		$("<tr></tr>").append(typecode).append(name).append(operation)
+        		.appendTo("#categorytable tbody"); 
+        	});
+        }
+        $(document).on("click","#addtype",function(){
+        	//alert($("#name").prop("value"));
+        	$.ajax({
+    			url : "http://127.0.0.1/admin/addcategory.action",
+    			data : {"name":$("#name").prop("value")},
+    			type : "get",
+    			success : function(result) {
+    				if(result>0){
+    					layer.close(addform);
+    					layer.msg("添加成功");
+    					getCategoryList();
+    					
+    				}
+    			}
+    		}); 
+        });
+        
+        /* 删除类型 */
+        $(document).on("click",".addBtn",function(){
+        	//alert($(this).prop("name"));
+        	$.ajax({
+    			url : "http://127.0.0.1/admin/delcategory",
+    			data : {"categoryid":$(this).prop("name")},
+    			type : "get",
+    			dataType :"json",
+    			success : function(result) {
+    				if(result>0){
+    					layer.msg("删除成功");
+    					getCategoryList();
+    				}
+    			}
+    	
+    		});
+        });
+        
+        
+    });
+    
+    
+    
+</script>
+
+</html>
