@@ -81,7 +81,7 @@
 		<dependency>
 			<groupId>com.github.pagehelper</groupId>
 			<artifactId>pagehelper</artifactId>
-			<version>5.1.2</version>
+			<version>5.3.1</version>
 		</dependency>
 		<!-- mysql 驱动包 -->
 		<dependency>
